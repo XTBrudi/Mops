@@ -1,29 +1,26 @@
+import os
 import subprocess
-import re
 
-# Run nmcli to list available Wi-Fi SSIDs
-wifi_list = subprocess.run(["nmcli", "-t", "-f", "SSID", "device", "wifi"], capture_output=True, text=True).stdout.strip().split('\n')
+def scan_wifi_networks():
+    try:
+        # Use subprocess to run the 'iwlist' command to scan for Wi-Fi networks
+        wifi_scan_results = subprocess.check_output(["iwlist", "wlan0", "scan"])
+        wifi_scan_results = wifi_scan_results.decode("utf-8")
 
-wifi_profiles = []
+        # Extract and display the list of available Wi-Fi networks
+        networks = []
+        lines = wifi_scan_results.split("\n")
+        for line in lines:
+            if "ESSID:" in line:
+                network = line.strip().split('"')[1]
+                networks.append(network)
 
-for wifi_ssid in wifi_list:
-    wifi_profile = {}
-    wifi_profile["ssid"] = wifi_ssid
-    
-    # Run nmcli to retrieve the Wi-Fi password for the current SSID
-    wifi_password = subprocess.run(["nmcli", "--show-secrets", "connection", "show", wifi_ssid], capture_output=True, text=True)
-    
-    # Extract the password using regular expressions
-    password_match = re.search(r'802-11-wireless-security.psk: (.+)', wifi_password.stdout)
-    if password_match:
-        wifi_profile["password"] = password_match.group(1)
-    else:
-        wifi_profile["password"] = None
-    
-    wifi_profiles.append(wifi_profile)
+        print("Available Wi-Fi networks:")
+        for network in networks:
+            print(network)
 
-# Print the list of Wi-Fi profiles and their passwords
-for wifi_profile in wifi_profiles:
-    print("SSID:", wifi_profile["ssid"])
-    print("Password:", wifi_profile["password"])
-    print("=" * 30)
+    except Exception as e:
+        print("Error:", str(e))
+
+if __name__ == "__main__":
+    scan_wifi_networks()
