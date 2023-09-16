@@ -2,8 +2,8 @@ import subprocess
 
 def scan_wifi_networks():
     try:
-        # Use subprocess to run the 'airport' command to scan for Wi-Fi networks
-        wifi_scan_results = subprocess.check_output(["airport", "-s"])
+        # Use subprocess to run the 'iw' command to scan for Wi-Fi networks
+        wifi_scan_results = subprocess.check_output(["iw", "dev", "wlan0", "scan"])
         wifi_scan_results = wifi_scan_results.decode("utf-8")
 
         # Extract and display the list of available Wi-Fi networks
